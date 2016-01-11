@@ -45,6 +45,7 @@ type NotifiersConfig struct {
 	Log       *LogNotifierConfig
 	Influxdb  *InfluxdbNotifierConfig
 	Slack     *SlackNotifierConfig
+	Beary     *BearyNotifierConfig
 	PagerDuty *PagerDutyNotifierConfig
 	HipChat   *HipChatNotifierConfig
 	OpsGenie  *OpsGenieNotifierConfig
@@ -84,6 +85,15 @@ type SlackNotifierConfig struct {
 	Url         string
 	Channel     string
 	Username    string
+	IconUrl     string
+	IconEmoji   string
+	Detailed    bool
+}
+
+type BearyNotifierConfig struct {
+	Enabled     bool
+	ClusterName string
+	Url         string
 	IconUrl     string
 	IconEmoji   string
 	Detailed    bool
@@ -130,6 +140,7 @@ type Consul interface {
 	LogConfig() *LogNotifierConfig
 	InfluxdbConfig() *InfluxdbNotifierConfig
 	SlackConfig() *SlackNotifierConfig
+	BearyConfig() *BearyNotifierConfig
 	PagerDutyConfig() *PagerDutyNotifierConfig
 	HipChatConfig() *HipChatNotifierConfig
 	OpsGenieConfig() *OpsGenieNotifierConfig
@@ -180,6 +191,11 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 	}
 
+	beary := &BearyNotifierConfig{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
+
 	pagerduty := &PagerDutyNotifierConfig{
 		Enabled: false,
 	}
@@ -199,6 +215,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Log:       log,
 		Influxdb:  influxdb,
 		Slack:     slack,
+		Beary:     beary,
 		PagerDuty: pagerduty,
 		HipChat:   hipchat,
 		OpsGenie:  opsgenie,
