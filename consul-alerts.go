@@ -187,6 +187,7 @@ func builtinNotifiers() []notifier.Notifier {
 	logConfig := consulClient.LogConfig()
 	influxdbConfig := consulClient.InfluxdbConfig()
 	slackConfig := consulClient.SlackConfig()
+	bearyConfig := consulClient.BearyConfig()
 	pagerdutyConfig := consulClient.PagerDutyConfig()
 	hipchatConfig := consulClient.HipChatConfig()
 	opsgenieConfig := consulClient.OpsGenieConfig()
@@ -233,6 +234,16 @@ func builtinNotifiers() []notifier.Notifier {
 			Detailed:    slackConfig.Detailed,
 		}
 		notifiers = append(notifiers, slackNotifier)
+	}
+	if bearyConfig.Enabled {
+		bearyNotifier := &notifier.BearyNotifier{
+			ClusterName: slackConfig.ClusterName,
+			Url:         slackConfig.Url,
+			IconUrl:     slackConfig.IconUrl,
+			IconEmoji:   slackConfig.IconEmoji,
+			Detailed:    slackConfig.Detailed,
+		}
+		notifiers = append(notifiers, bearyNotifier)
 	}
 	if pagerdutyConfig.Enabled {
 		pagerdutyNotifier := &notifier.PagerDutyNotifier{

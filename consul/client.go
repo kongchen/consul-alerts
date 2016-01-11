@@ -148,6 +148,20 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/slack/detailed":
 				valErr = loadCustomValue(&config.Notifiers.Slack.Detailed, val, ConfigTypeBool)
 
+			// beary notfier config
+			case "consul-alerts/config/notifiers/beary/enabled":
+				valErr = loadCustomValue(&config.Notifiers.Beary.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/beary/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.Beary.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/beary/url":
+				valErr = loadCustomValue(&config.Notifiers.Beary.Url, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/beary/icon-url":
+				valErr = loadCustomValue(&config.Notifiers.Beary.IconUrl, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/beary/icon-emoji":
+				valErr = loadCustomValue(&config.Notifiers.Beary.IconEmoji, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/beary/detailed":
+				valErr = loadCustomValue(&config.Notifiers.Beary.Detailed, val, ConfigTypeBool)
+
 			// pager-duty notfier config
 			case "consul-alerts/config/notifiers/pagerduty/enabled":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.Enabled, val, ConfigTypeBool)
@@ -309,6 +323,10 @@ func (c *ConsulAlertClient) InfluxdbConfig() *InfluxdbNotifierConfig {
 
 func (c *ConsulAlertClient) SlackConfig() *SlackNotifierConfig {
 	return c.config.Notifiers.Slack
+}
+
+func (c *ConsulAlertClient) BearyConfig() *BearyNotifierConfig {
+	return c.config.Notifiers.Beary
 }
 
 func (c *ConsulAlertClient) PagerDutyConfig() *PagerDutyNotifierConfig {
