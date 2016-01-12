@@ -3,7 +3,6 @@ package notifier
 import (
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	"github.com/influxdb/influxdb/client/v2"
-	"time"
 )
 
 type InfluxdbNotifier struct {
