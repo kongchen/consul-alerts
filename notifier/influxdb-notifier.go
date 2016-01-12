@@ -2,7 +2,8 @@ package notifier
 
 import (
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/influxdb/influxdb/client"
+	"github.com/influxdb/influxdb/client/v2"
+	"time"
 )
 
 type InfluxdbNotifier struct {
@@ -15,21 +16,25 @@ type InfluxdbNotifier struct {
 
 func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 
-	config := &client.ClientConfig{
-		Host:     influxdb.Host,
+	// Make client
+	influxdbClient, err := client.NewHTTPClient(client.HTTPConfig{
+		Addr:     influxdb.Host,
 		Username: influxdb.Username,
 		Password: influxdb.Password,
-		Database: influxdb.Database,
-	}
+	})
 
-	influxdbClient, err := client.New(config)
 	if err != nil {
 		log.Println("unable to access influxdb. can't send notification. ", err)
 		return false
 	}
 
-	seriesList := influxdb.toSeries(messages)
-	err = influxdbClient.WriteSeries(seriesList)
+	bp, _ := client.NewBatchPoints(client.BatchPointsConfig{
+		Database:  influxdb.Database,
+		Precision: "s",
+	})
+
+	influxdb.toBatchPoints(messages, bp)
+	err = influxdbClient.Write(bp)
 
 	if err != nil {
 		log.Println("unable to send notifications: ", err)
@@ -40,36 +45,27 @@ func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 	return true
 }
 
-func (influxdb *InfluxdbNotifier) toSeries(messages Messages) []*client.Series {
+func (influxdb *InfluxdbNotifier) toBatchPoints(messages Messages, bp client.BatchPoints) {
 
 	seriesName := influxdb.SeriesName
-	columns := []string{
-		"node",
-		"service",
-		"checks",
-		"notes",
-		"output",
-		"status",
-	}
 
-	seriesList := make([]*client.Series, len(messages))
 	for index, message := range messages {
-
-		point := []interface{}{
-			message.Node,
-			message.Service,
-			message.Check,
-			message.Notes,
-			message.Output,
-			message.Status,
+		tags := map[string]string{
+			"node":    message.Node,
+			"service": message.Service,
+			"status":  message.Status,
+		}
+		fields := map[string]interface{}{
+			"checks": message.Check,
+			"notes":  message.Notes,
+			"output": message.Output,
 		}
 
-		series := &client.Series{
-			Name:    seriesName,
-			Columns: columns,
-			Points:  [][]interface{}{point},
+		p, err := client.NewPoint(seriesName, tags, fields, time.Now())
+		if err != nil {
+			log.Println("Error: ", err.Error())
 		}
-		seriesList[index] = series
+		log.Debugf("%s", index)
+		bp.AddPoint(p)
 	}
-	return seriesList
 }
