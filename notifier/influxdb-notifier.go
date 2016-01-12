@@ -30,7 +30,7 @@ func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 
 	bp, _ := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  influxdb.Database,
-		Precision: "s",
+		Precision: "ms",
 	})
 
 	influxdb.toBatchPoints(messages, bp)
@@ -54,6 +54,7 @@ func (influxdb *InfluxdbNotifier) toBatchPoints(messages Messages, bp client.Bat
 			"node":    message.Node,
 			"service": message.Service,
 			"status":  message.Status,
+			"serviceId": message.ServiceId,
 		}
 		fields := map[string]interface{}{
 			"checks": message.Check,
@@ -61,7 +62,7 @@ func (influxdb *InfluxdbNotifier) toBatchPoints(messages Messages, bp client.Bat
 			"output": message.Output,
 		}
 
-		p, err := client.NewPoint(seriesName, tags, fields, time.Now())
+		p, err := client.NewPoint(seriesName, tags, fields, message.Timestamp)
 		if err != nil {
 			log.Println("Error: ", err.Error())
 		}
