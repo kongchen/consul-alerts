@@ -237,13 +237,14 @@ func builtinNotifiers() []notifier.Notifier {
 	}
 	if bearyConfig.Enabled {
 		bearyNotifier := &notifier.BearyNotifier{
-			ClusterName: slackConfig.ClusterName,
-			Url:         slackConfig.Url,
-			IconUrl:     slackConfig.IconUrl,
-			IconEmoji:   slackConfig.IconEmoji,
-			Detailed:    slackConfig.Detailed,
+			ClusterName: bearyConfig.ClusterName,
+			Url:         bearyConfig.Url,
+			IconUrl:     bearyConfig.IconUrl,
+			IconEmoji:   bearyConfig.IconEmoji,
+			Detailed:    bearyConfig.Detailed,
 		}
 		notifiers = append(notifiers, bearyNotifier)
+		log.Info("Enable beary chat")
 	}
 	if pagerdutyConfig.Enabled {
 		pagerdutyNotifier := &notifier.PagerDutyNotifier{
